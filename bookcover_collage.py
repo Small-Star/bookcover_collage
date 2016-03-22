@@ -14,11 +14,11 @@ import shutil
 import string
 import warnings
 
-def get_cover_image(title,verbose=True,directory='D:\Misc\Projects\Bookcover Collage\coverdir'):
+def get_cover_image(title,verbose=True,directory='./coverdir'):
     #Sample goodreads query URL: http://www.goodreads.com/search?utf8=%E2%9C%93&q=atlas+shrugged&search_type=books
 
-    fname = directory + "\\" + title + ".jpg"
-
+    fname = directory + "/" + title + ".jpg"
+        
     #Check and make sure the image hasn't been pulled already
     if os.path.isfile(fname):
         if verbose:
@@ -28,7 +28,7 @@ def get_cover_image(title,verbose=True,directory='D:\Misc\Projects\Bookcover Col
     #Form querystring by concatenating search_url_beg + search string + search_url_end
     search_url_beg = "http://www.goodreads.com/search?utf8=%E2%9C%93&q="
     search_url_end = "&search_type=books"
-    search_title = string.join(title.split(),'+')
+    search_title = str.join('+',title.split())
     search_url = search_url_beg + title + search_url_end
     
     if verbose:
@@ -70,5 +70,13 @@ def get_cover_image(title,verbose=True,directory='D:\Misc\Projects\Bookcover Col
         if verbose:
             print('Image written: %s' %fname)
     except IOError:
-        print "Error writing image to %s" %fname
+        print ("Error writing image to %s" %fname)
 
+def get_all_images(title_list,directory='./coverdir'):
+    #Assumes input is a list of strings; each string being a title of a book
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    for t in title_list:
+        get_cover_image(t)
