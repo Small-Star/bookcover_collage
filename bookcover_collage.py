@@ -98,23 +98,45 @@ def get_all_images(title_list, verbose=True, directory='./coverdir'):
             print('=== %s exists' %fname)
             continue
 
-def make_collage(verbose=True, directory='./coverdir'):
+def make_collage(width=1280,verbose=True, directory='./coverdir'):
     #Concatenate all images in target directory
-    files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f != "collage.jpg"]
 
     images = []
-    
+    sizes = []
+
     for f in files:
         #Filter out all but .jpgs
         try:
-            if Image.open(directory + "/" + f).format == 'JPEG':
-                images.append(f)
+            fname = directory + "/" + f
+            if Image.open(fname).format == 'JPEG':
+                im_size = Image.open(fname).size
+                images.append(fname)
+                sizes.append(im_size)
         except IOError:
             pass
         
     if verbose:
         print('List of images found: %s' %images)
+        print('Total Area: %s' %sum([s[0]*s[1] for s in sizes]))
 
+    #Make a new image ***FIX STATIC SIZE ***
+    collage = Image.new("RGB", (width, 5000))
+
+    w_ctr, h_ctr = 0, 0
+    
+    for i in images:
+        tmp = Image.open(i)
+
+        #Check to make sure image will not go out of bounds
+        if (w_ctr + tmp.size[0]) >= width:
+            h_ctr += tmp.size[1]
+            w_ctr = 0
+            
+        collage.paste(tmp,(w_ctr,h_ctr))
+        w_ctr += tmp.size[0]
+    collage.save(directory + "/" + "collage.jpg")
+
+        
     ###TODO
-    ###Stick images together
     ###Cleanup
