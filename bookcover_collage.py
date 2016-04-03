@@ -43,8 +43,14 @@ def get_cover_image(title, verbose=True, directory='./coverdir'):
     soup = bs4.BeautifulSoup(res.text, "html.parser")
 
     #The first result is probably the one we want
-    result = soup.select('.bookTitle')[0].get('href')
-    top_result_url = "http://www.goodreads.com" + result
+    result = soup.select('.bookTitle')
+
+    if len(result) == 0:
+        #If no results at all are returned, return no image
+        return 0
+    
+    result_ck = result[0].get('href')
+    top_result_url = "http://www.goodreads.com" + result_ck
 
     if verbose:
         print('--- Pulling book page: %s' %top_result_url)        
