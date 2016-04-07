@@ -1,10 +1,5 @@
 #bookcover_collage
-
-
-#Get list of books
-#For each book, get bookcover
-#Combine all images
-
+#Small-Star
 
 import requests
 import webbrowser
@@ -15,6 +10,7 @@ import string
 import warnings
 import time
 import random
+import math
 from PIL import Image
 
 def get_cover_image(title, verbose=True, directory='./coverdir'):
@@ -81,7 +77,7 @@ def get_cover_image(title, verbose=True, directory='./coverdir'):
     except IOError:
         print ("Error writing image to %s" %fname)
 
-def get_all_images(title_list, verbose=True, directory='./coverdir'):
+def get_all_images(title_list, verbose=True, directory='./coverdir', rand_delay=True):
     #Assumes input is a list of strings; each string being a title of a book
 
     if not os.path.exists(directory):
@@ -96,7 +92,8 @@ def get_all_images(title_list, verbose=True, directory='./coverdir'):
         if not os.path.isfile(fname):
             #Image has not already been obtained
             #Add in a random delay; unsure if scraping is tolerated
-            time.sleep(random.randrange(1,30))
+            if rand_delay:
+                time.sleep(random.randrange(1,30))
             get_cover_image(t, verbose)
 
         else:
@@ -104,13 +101,13 @@ def get_all_images(title_list, verbose=True, directory='./coverdir'):
             print('=== %s exists' %fname)
             continue
 
-def make_collage(width=1280,verbose=True, directory='./coverdir'):
+def make_collage(width=10,verbose=True, directory='./coverdir', output_filename="collage.jpg"):
     #Concatenate all images in target directory
     files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f)) and f != "collage.jpg"]
 
-    images = []
-    sizes = []
+    images, sizes = [], []
 
+    #Read images out of the specified directory
     for f in files:
         #Filter out all but .jpgs
         try:
@@ -121,28 +118,39 @@ def make_collage(width=1280,verbose=True, directory='./coverdir'):
                 sizes.append(im_size)
         except IOError:
             pass
+
+    #Find the largest image; using the variably sized images provided looked sloppy
+    largest_size = (0,0)
+    for s in sizes:
+        if s[0]*s[1] > largest_size[0]*largest_size[1]:
+            largest_size = s
         
     if verbose:
-        print('List of images found: %s' %images)
-        print('Total Area: %s' %sum([s[0]*s[1] for s in sizes]))
+        
+        print('List of images found: \n')
+        print("\n".join(images))
+        print('Total Area (Before Resize): %s' %sum([s[0]*s[1] for s in sizes]))
+        ta = largest_size[0]*largest_size[1]*len(images)
+        print('Total Area (After Resize): %s' %ta)
 
-    #Make a new image ***FIX STATIC SIZE ***
-    collage = Image.new("RGB", (width, 5000))
+    #Make a new image 
+    collage = Image.new("RGB", (width*largest_size[0], math.ceil(len(images)/width)*largest_size[1]))
 
     w_ctr, h_ctr = 0, 0
-    
+
+    #Resize and concatenate all images
     for i in images:
         tmp = Image.open(i)
+        tmp = tmp.resize(largest_size)
 
         #Check to make sure image will not go out of bounds
-        if (w_ctr + tmp.size[0]) >= width:
+        if (w_ctr + tmp.size[0]) > width*largest_size[0]:
             h_ctr += tmp.size[1]
             w_ctr = 0
             
         collage.paste(tmp,(w_ctr,h_ctr))
         w_ctr += tmp.size[0]
-    collage.save(directory + "/" + "collage.jpg")
 
-        
-    ###TODO
-    ###Cleanup
+    #Save output
+    collage.save(output_filename)
+
