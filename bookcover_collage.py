@@ -115,11 +115,7 @@ def get_all_images(title_list, author_list, verbose=True, directory='./coverdir'
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-<<<<<<< HEAD
     missing_titles = []
-=======
-    num_missing = 0
->>>>>>> 341638823b6cf9590ca012a9112a7b4d4bdc7c87
     
     for t in range(len(title_list)):
         fname = directory + "/" + title_list[t] + ".jpg"
@@ -132,11 +128,7 @@ def get_all_images(title_list, author_list, verbose=True, directory='./coverdir'
 
             #Skip this one if it is a short story - it won't be on Goodreads
             if title_list[t].find("[Short Story]") != -1:
-<<<<<<< HEAD
                 missing_titles.append(title_list[t])
-=======
-                num_missing += 1
->>>>>>> 341638823b6cf9590ca012a9112a7b4d4bdc7c87
                 continue
             
             #Add in a random delay; unsure if scraping is tolerated
@@ -145,22 +137,15 @@ def get_all_images(title_list, author_list, verbose=True, directory='./coverdir'
 
             r = get_cover_image(title_list[t], author_list[t], verbose=verbose, directory=directory)
             if r != 1:
-<<<<<<< HEAD
                 missing_titles.append(title_list[t])
-=======
-                num_missing += 1
->>>>>>> 341638823b6cf9590ca012a9112a7b4d4bdc7c87
 
         else:
             #Image already exists
             print('=== %s exists' %fname)
             continue
-<<<<<<< HEAD
+
     print("Number of images that could not be found: %s" %len(missing_titles))
     print(missing_titles)
-=======
-    print("Number of images that could not be found: %s" %num_missing)
->>>>>>> 341638823b6cf9590ca012a9112a7b4d4bdc7c87
 
 def make_collage(width=10,verbose=True, directory='./coverdir', output_filename="collage.jpg"):
     #Concatenate all images in target directory
