@@ -11,6 +11,7 @@ import warnings
 import time
 import random
 import math
+import re
 from PIL import Image
 from difflib import SequenceMatcher
 
@@ -92,6 +93,13 @@ def get_cover_image(title, author, verbose=True, directory='./coverdir'):
 
     if verbose:
         print('--- Pulling cover: %s' %cover_img_url)
+
+    #Get the number of pages
+    num_pages = soup2.findAll(attrs={"property":"books:page_count"})
+
+    if verbose:
+        #TODO: Fix unnecessarily complicated regex 
+        print('--- Number of Pages: %s' %re.findall(r'\d+',str(num_pages[0]).split(' ')[1])[0])
 
     #Getting cover image
     res3 = requests.get(cover_img_url, verify=False)
